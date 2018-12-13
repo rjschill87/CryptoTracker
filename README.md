@@ -1,0 +1,171 @@
+# Next.js with Express, Apollo, and Auth using Passport
+
+**[WIP]**
+
+This example is a customized implementation of [ooaed's next-apollo-auth boilerplate](https://github.com/ooade/next-apollo-auth) that's merged with [Next.js example with-apollo-auth](https://github.com/zeit/next.js/tree/canary/examples/with-apollo-auth).
+
+**Node Version Note**
+
+This project uses [object spread [see support]](https://node.green/#ES2018-features-object-rest-spread-properties-object-spread-properties) within the Express server, so either use Node v8.6.0+ or replace the object spread within `server > data > resolvers.js`
+
+**Graphql File Types**
+
+Within next.config.js you'll find an exported function called withGraphql. This enabled us to use the `.graphql || .gql` file types. This has yet to be implemented.
+
+## Main Technologies Used
+
+* Apollo GraphQl
+* Express.js
+* Express Validator
+* Next.js
+* Passport.js
+* Passport-local-mongoose
+* Passport-github
+* PostCSS Styled JSX
+* Lost Grid
+* Minimalistic Tailwind config for style guide
+
+## Contents
+
+* [Project Structure](#project-structure)
+* [Mutations](#mutations)
+  * [Schema](#schema)
+  * [Resolvers](#resolvers)
+* [Models](#models)
+* [Deploy](#deploy)
+
+### Project Structure
+
+```md
+├── components
+│   └── forms
+│       ├── login.js
+│       └── signup.js
+├── lib
+│   ├── initApollo.js
+│   └── withData.js
+├── pages
+│   ├── index.js
+│   ├── login.js
+│   └── signup.js
+└── server
+    ├── data
+    │   └── auth
+    │   │   ├── mutations.js
+    │   │   ├── queries.js
+    │   │   └── types.js
+    │   ├── resolvers.js
+    │   └── schema.js
+    ├── models
+    │   └── User.js
+    ├── services
+    │   └── passport.js
+    └── index.js
+    └── routes.js
+```
+
+### Mutations
+
+#### Schema
+
+Here we have one `User`'s type with three fields (email, name, and password), one `Query` type with a profile field just to keep GraphQL's mouth shut about having a Query type defined. We have two `Mutation` types (login, and signup). These are exported from `server > data > auth > types.js` into `server > data > schema.js`
+
+```ts
+
+// types.js
+type User {
+	email: String
+	name: String
+	password: String
+}
+
+type Query {
+	profile: User
+}
+
+type Mutation {
+	createUser(email: String!, name: String, password: String!): User
+	login(email: String!, password: String!): User
+}
+
+// schema.js
+const { authTypes, authQueries, authMutations } = require('./auth/types')
+
+const typeDefs = `
+	${authTypes}
+	type Query {
+		${authQueries}
+	}
+	type Mutation {
+		${authMutations}
+	}
+`
+```
+
+#### Resolvers
+
+The resolvers we care about here are `createUser` and `login`. They both take in `email` and `password` as arguments with `createUser` taking an extra `name` argument.
+
+```js
+// auth/mutations.js
+createUser(root, { email, name, password }, { login }) {
+	const user = new User({ email, name })
+
+	return new Promise((resolve, reject) => {
+		return User.register(user, password, (err) => {
+			if (err) {
+				reject(err)
+			}
+			else {
+				login(user, () => resolve(user))
+			}
+		})
+	})
+},
+login(root, { email, password }, { login }) {
+	return new Promise((resolve, reject) => {
+		return User.authenticate()(email, password, (err, user) => {
+			// user returns false if username / email incorrect
+			if (user) {
+				login(user, () => resolve(user))
+			}
+			else {
+				reject('The email or password you supplied is incorrect')
+			}
+		})
+	})
+},
+// ...
+
+// auth/queries.js
+account(root, args, req) {
+	return new Promise((resolve, reject) => {
+		if (req.user) {
+			return resolve(req.user)
+		}
+
+		return resolve(null)
+	})
+}
+
+// resolvers.js
+Query: {
+	// imported from auth/queries.js
+	...authQueries
+},
+Mutation: {
+	// imported from auth/mutations.js
+	...authMutations
+}
+```
+
+
+```
+
+### Deploy
+
+[![Deploy to now](https://deploy.now.sh/static/button.svg)](https://deploy.now.sh/?repo=https://github.com/tomgobich/nextjs-with-express-apollo-passport-auth)
+
+### License
+
+MIT
