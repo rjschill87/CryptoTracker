@@ -7,6 +7,7 @@ import redirect from '../lib/redirect'
 import Layout from '../components/layout'
 import Balance from '../components/balance'
 import PositionForm from '../components/forms/addPosition'
+import CoinList from '../components/coins'
 
 class Index extends Component {
   static async getInitialProps(context, apolloClient) {
@@ -25,6 +26,7 @@ class Index extends Component {
             <Balance account={account}/>
             <PositionForm account={account}/>
             <br />
+            <CoinList account={account}/>
             <button onClick={() => redirect({}, '/logout')}>Logout</button>
             <Link href='/profile'>
               <a>Go to Profile</a>

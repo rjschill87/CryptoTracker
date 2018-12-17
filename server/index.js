@@ -16,7 +16,7 @@ require('./services/passport')
 
 mongoose.connect(process.env.MONGO_URL)
 
-const port = process.env.PORT
+const port = process.env.PORT || 3000
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
@@ -69,5 +69,5 @@ app.prepare().then(() => {
   })
 
   // start express server
-  server.listen(port, () => console.log(`> Ready at ${process.env.SERVER_URL}`))
+  server.listen(port, () => console.log(`> Ready at ${process.env.SERVER_URL}:${port}`))
 })
