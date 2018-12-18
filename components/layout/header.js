@@ -3,7 +3,7 @@ import { colors } from '../../tailwind'
 export default ({ account }) => (
   <header>
     <div className='container'>
-      <h3>Header Here...</h3>
+      <h3>CryptoTracker</h3>
     </div>
     <style jsx>{`
       header {

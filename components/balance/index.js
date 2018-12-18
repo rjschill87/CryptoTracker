@@ -29,7 +29,7 @@ class Balance extends React.Component {
           if (loading) return "Loading..."
           if (error) return `Error! ${error.message}`
           const { coins } = data.positions
-          const balance = this.onBalanceFetched(coins)
+          const balance = this.onBalanceFetched(coins).toFixed(2)
 
           return (
             <div>

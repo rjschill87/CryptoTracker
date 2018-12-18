@@ -5,9 +5,24 @@ class Coin extends React.Component {
     super(props)
 
     this.state = {
-      value: props.quantity * props.price
+      value: 0
     }
   }
+
+  componentWillMount() {
+    this.setState({
+      value: this.props.quantity * this.props.price
+    })
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props != nextProps) {
+      this.setState({
+        value: nextProps.quantity * nextProps.price
+      })
+    }
+  }
+
   render() {
     return (
       <li>

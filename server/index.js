@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express')
 const session = require('express-session')
 const MongoStore = require('connect-mongo')(session)
@@ -10,8 +12,8 @@ const { graphqlExpress, graphiqlExpress } = require('apollo-server-express')
 const next = require('next')
 
 const schema = require('./data/schema')
+const coinUpdater = require('./jobs/coinUpdater')
 
-require('dotenv').config()
 require('./services/passport')
 
 mongoose.connect(process.env.MONGO_URL)
@@ -67,6 +69,9 @@ app.prepare().then(() => {
   server.get('*', (req, res) => {
     return handle(req, res)
   })
+
+  // start the coin updater
+  coinUpdater.run()
 
   // start express server
   server.listen(port, () => console.log(`> Ready at ${process.env.SERVER_URL}:${port}`))
